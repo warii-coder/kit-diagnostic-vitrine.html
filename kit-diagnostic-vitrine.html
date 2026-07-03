@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kit Diagnostic Vitrine — Audit express PME</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14181F;
+    --surface:#1D232C;
+    --surface-alt:#262E39;
+    --surface-hi:#2D3644;
+    --border:#333D4A;
+    --border-lo:#262E39;
+    --text:#EDE9DF;
+    --text-dim:#9BA3AF;
+    --text-faint:#6B7480;
+    --amber:#E0A23A;
+    --amber-dim:#8A6829;
+    --terracotta:#C15B34;
+    --teal:#3F8078;
+    --font-display:'Fraunces', serif;
+    --font-body:'IBM Plex Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:14px;
+    line-height:1.55;
+  }
+  .app{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    min-height:100vh;
+  }
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{order:2;}
+  }
+
+  /* SIDEBAR */
+  .sidebar{
+    background:var(--surface-alt);
+    border-right:1px solid var(--border);
+    padding:28px 22px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-bottom:4px;
+  }
+  .brand .mark{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:20px;
+    color:var(--amber);
+  }
+  .brand .sub{
+    font-size:11px;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+  }
+  .tagline{
+    font-size:12px;
+    color:var(--text-dim);
+    margin:0 0 24px;
+  }
+
+  .block{
+    margin-bottom:26px;
+    padding-bottom:26px;
+    border-bottom:1px solid var(--border-lo);
+  }
+  .block:last-child{border-bottom:none;}
+  .block h3{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-faint);
+    margin:0 0 12px;
+    font-weight:600;
+  }
+
+  label{
+    display:block;
+    font-size:11px;
+    color:var(--text-dim);
+    margin:10px 0 4px;
+  }
+  input, select, textarea{
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:8px 10px;
+    border-radius:4px;
+    font-family:var(--font-body);
+    font-size:13px;
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:none;
+    border-color:var(--amber-dim);
+  }
+
+  .goal-num{
+    font-family:var(--font-mono);
+    font-size:26px;
+    color:var(--amber);
+    line-height:1;
+  }
+  .goal-of{
+    font-size:12px;
+    color:var(--text-faint);
+    margin-top:4px;
+  }
+  .bar{
+    height:6px;
+    background:var(--surface);
+    border-radius:3px;
+    margin-top:12px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .bar-fill{
+    height:100%;
+    background:var(--amber);
+    transition:width .4s ease;
+  }
+  .goal-edit{
+    display:flex;
+    gap:6px;
+    align-items:center;
+    margin-top:10px;
+  }
+  .goal-edit input{width:110px;}
+  .btn-mini{
+    font-size:11px;
+    padding:5px 9px;
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .btn-mini:hover{border-color:var(--text-dim); color:var(--text);}
+
+  .client-item{
+    padding:10px 0;
+    border-bottom:1px solid var(--border-lo);
+    cursor:pointer;
+  }
+  .client-item:last-child{border-bottom:none;}
+  .client-item .name{font-size:13px; font-weight:500;}
+  .client-item .meta{font-size:11px; color:var(--text-faint); display:flex; justify-content:space-between; margin-top:2px;}
+  .status-chip{
+    font-size:10px;
+    padding:1px 7px;
+    border-radius:20px;
+    font-family:var(--font-mono);
+  }
+  .status-chip.brouillon{background:var(--surface); color:var(--text-faint); border:1px solid var(--border);}
+  .status-chip.facture{background:rgba(224,162,58,.12); color:var(--amber); border:1px solid var(--amber-dim);}
+  .empty-hint{font-size:12px; color:var(--text-faint); font-style:italic;}
+
+  /* MAIN */
+  .main{padding:36px 44px; max-width:900px;}
+  @media (max-width:860px){.main{padding:24px;}}
+  .page-title{
+    font-family:var(--font-display);
+    font-size:28px;
+    font-weight:500;
+    margin:0 0 6px;
+  }
+  .page-sub{
+    color:var(--text-dim);
+    font-size:13px;
+    margin:0 0 32px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:26px 28px;
+    margin-bottom:24px;
+  }
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 20px;}
+  @media (max-width:600px){.grid2{grid-template-columns:1fr;}}
+
+  .btn-primary{
+    background:var(--amber);
+    color:#1A1305;
+    border:none;
+    padding:11px 20px;
+    border-radius:4px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+    margin-top:18px;
+  }
+  .btn-primary:hover{background:#EDB157;}
+  .btn-primary:disabled{background:var(--surface-hi); color:var(--text-faint); cursor:not-allowed;}
+  .btn-secondary{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:4px;
+    font-size:13px;
+    cursor:pointer;
+    margin-top:18px;
+    margin-left:10px;
+  }
+  .btn-secondary:hover{border-color:var(--text-dim);}
+
+  .loading{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:var(--text-dim);
+    font-size:13px;
+    padding:20px 0;
+  }
+  .spinner{
+    width:16px;height:16px;
+    border:2px solid var(--border);
+    border-top-color:var(--amber);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .error-box{
+    background:rgba(193,91,52,.1);
+    border:1px solid var(--terracotta);
+    color:#E8A98A;
+    padding:12px 16px;
+    border-radius:6px;
+    font-size:13px;
+    margin-top:16px;
+  }
+
+  /* REPORT */
+  .report-wrap{position:relative;}
+  .seal{
+    position:absolute;
+    top:-6px; right:6px;
+    width:84px; height:84px;
+    border-radius:50%;
+    border:2px solid var(--teal);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform:rotate(-8deg);
+    opacity:.85;
+  }
+  .seal-inner{
+    width:70px;height:70px;
+    border-radius:50%;
+    border:1px dashed var(--teal);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family:var(--font-display);
+    font-size:10px;
+    line-height:1.2;
+    color:var(--teal);
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    padding:6px;
+  }
+
+  .report-section{margin-bottom:20px;}
+  .report-section h4{
+    font-family:var(--font-display);
+    font-size:15px;
+    font-weight:500;
+    margin:0 0 8px;
+    color:var(--amber);
+  }
+  .report-section p{margin:0 0 6px; color:var(--text);}
+  .report-section ul{margin:0; padding-left:18px;}
+  .report-section li{margin-bottom:5px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:600px){.two-col{grid-template-columns:1fr;}}
+  .post-card{
+    background:var(--surface-alt);
+    border:1px solid var(--border-lo);
+    border-radius:6px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    font-size:13px;
+  }
+  .post-card .plat{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--text-faint);
+    margin-bottom:4px;
+  }
+  .week-row{
+    display:flex;
+    gap:12px;
+    margin-bottom:8px;
+    font-size:13px;
+  }
+  .week-label{
+    font-family:var(--font-mono);
+    color:var(--teal);
+    min-width:90px;
+    flex-shrink:0;
+  }
+
+  .price-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px solid var(--border-lo);
+  }
+  .price-row label{margin:0; white-space:nowrap;}
+  .price-row input{width:130px;}
+
+  /* INVOICE */
+  .invoice{
+    background:#EDE9DF;
+    color:#1A1D22;
+    border-radius:8px;
+    padding:40px 44px;
+    font-family:var(--font-body);
+  }
+  .invoice .inv-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:2px solid #1A1D22;
+    padding-bottom:18px;
+    margin-bottom:24px;
+  }
+  .invoice .inv-title{
+    font-family:var(--font-display);
+    font-size:24px;
+    font-weight:500;
+  }
+  .invoice .inv-num{font-family:var(--font-mono); font-size:12px; color:#555; margin-top:4px;}
+  .invoice .inv-from p, .invoice .inv-to p{margin:2px 0; font-size:13px;}
+  .invoice .inv-meta{font-size:12px; text-align:right; color:#444;}
+  .invoice table{width:100%; border-collapse:collapse; margin:20px 0;}
+  .invoice th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:#666;
+    border-bottom:1px solid #999;
+    padding:6px 4px;
+  }
+  .invoice td{padding:10px 4px; border-bottom:1px solid #d8d3c5; font-size:13px;}
+  .invoice .total-row td{
+    font-weight:600;
+    font-size:16px;
+    border-bottom:none;
+    border-top:2px solid #1A1D22;
+  }
+  .invoice .inv-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-top:36px;
+  }
+  .invoice .terms{font-size:11px; color:#666; max-width:320px;}
+  .invoice .stamp{
+    width:100px;height:100px;
+    border-radius:50%;
+    border:2px solid var(--terracotta);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform:rotate(6deg);
+  }
+  .invoice .stamp-inner{
+    width:82px;height:82px;
+    border-radius:50%;
+    border:1px dashed var(--terracotta);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family:var(--font-display);
+    font-size:10px;
+    line-height:1.25;
+    color:var(--terracotta);
+    text-transform:uppercase;
+    padding:8px;
+  }
+
+  @media print{
+    .sidebar, .no-print{display:none !important;}
+    .app{display:block;}
+    .main{padding:0; max-width:none;}
+    body{background:#fff;}
+  }
+
+  .field-hint{font-size:11px; color:var(--text-faint); margin-top:-2px; margin-bottom:8px;}
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--text-faint);
+  }
+  .empty-state .big{font-family:var(--font-display); font-size:18px; color:var(--text-dim); margin-bottom:8px;}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+const state = {
+  settings: JSON.parse(sessionStorage_polyfill_get('kdv_settings')) || { proName:'', proPhone:'' },
+  goal: Number(sessionStorage_polyfill_get('kdv_goal')) || 500000,
+  clients: JSON.parse(sessionStorage_polyfill_get('kdv_clients')) || [],
+  activeClientId: null,
+  loading: false,
+  error: null,
+  view: 'form'
+};
+
+// In-memory only (no browser storage APIs allowed) — simple in-memory fallback shim
+function sessionStorage_polyfill_get(){ return null; }
+
+let invoiceCounter = 1;
+
+function uid(){ return 'c_' + Math.random().toString(36).slice(2,9); }
+
+function fmtCFA(n){
+  return Number(n||0).toLocaleString('fr-FR') + ' FCFA';
+}
+
+function render(){
+  const app = document.getElementById('app');
+  const totalFacture = state.clients.filter(c=>c.status==='facture').reduce((s,c)=>s+Number(c.price||0),0);
+  const pct = Math.min(100, Math.round((totalFacture/state.goal)*100));
+
+  app.innerHTML = `
+    <div class="sidebar no-print">
+      <div class="brand"><span class="mark">Vitrine</span><span class="sub">Kit Diagnostic</span></div>
+      <p class="tagline">Audit express + facturation pour PME locales.</p>
+
+      <div class="block">
+        <h3>Vos infos (facture)</h3>
+        <label>Votre nom / entreprise</label>
+        <input id="proName" value="${escapeHtml(state.settings.proName)}" placeholder="ex. Amina Services Digital">
+        <label>Téléphone / WhatsApp</label>
+        <input id="proPhone" value="${escapeHtml(state.settings.proPhone)}" placeholder="ex. +227 90 00 00 00">
+      </div>
+
+      <div class="block">
+        <h3>Objectif du weekend</h3>
+        <div class="goal-num">${fmtCFA(totalFacture)}</div>
+        <div class="goal-of">sur objectif de ${fmtCFA(state.goal)} — ${pct}%</div>
+        <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <div class="goal-edit">
+          <input id="goalInput" type="number" value="${state.goal}" step="5000">
+          <button class="btn-mini" id="saveGoalBtn">Définir</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Clients (${state.clients.length})</h3>
+        ${state.clients.length===0 ? '<p class="empty-hint">Aucun client pour l’instant. Ajoutez le premier à droite.</p>' :
+          state.clients.slice().reverse().map(c=>`
+            <div class="client-item" data-id="${c.id}">
+              <div class="name">${escapeHtml(c.name)}</div>
+              <div class="meta">
+                <span>${c.price ? fmtCFA(c.price) : '—'}</span>
+                <span class="status-chip ${c.status}">${c.status==='facture'?'Facturé':'Brouillon'}</span>
+              </div>
+            </div>
+          `).join('')}
+        <button class="btn-mini" id="newClientBtn" style="margin-top:12px;">+ Nouveau client</button>
+      </div>
+    </div>
+
+    <div class="main">
+      ${renderMain(totalFacture)}
+    </div>
+  `;
+
+  attachEvents();
+}
+
+function renderMain(){
+  if(state.view === 'form'){
+    const c = getActiveClient() || emptyClientDraft();
+    return `
+      <h1 class="page-title">Diagnostic vitrine</h1>
+      <p class="page-sub">Renseignez la situation de l’entreprise. Le diagnostic, les recommandations et les contenus prêts à l’emploi sont générés automatiquement.</p>
+
+      <div class="card">
+        <div class="grid2">
+          <div>
+            <label>Nom de l’entreprise</label>
+            <input id="f_name" value="${escapeHtml(c.name)}" placeholder="ex. Restaurant Le Sahel">
+          </div>
+          <div>
+            <label>Secteur d’activité</label>
+            <input id="f_sector" value="${escapeHtml(c.sector)}" placeholder="ex. Restauration, salon de coiffure, boutique...">
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label>Quartier / ville</label>
+            <input id="f_quartier" value="${escapeHtml(c.quartier)}" placeholder="ex. Niamey, Plateau">
+          </div>
+          <div>
+            <label>Contact (téléphone/WhatsApp)</label>
+            <input id="f_contact" value="${escapeHtml(c.contact)}" placeholder="ex. +227 96 00 00 00">
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label>Site web ?</label>
+            <select id="f_website">
+              <option value="non" ${c.website==='non'?'selected':''}>Pas de site web</option>
+              <option value="mauvais" ${c.website==='mauvais'?'selected':''}>Site existant mais peu efficace</option>
+              <option value="oui" ${c.website==='oui'?'selected':''}>Site web correct</option>
+            </select>
+          </div>
+          <div>
+            <label>Fiche Google Business ?</label>
+            <select id="f_gmb">
+              <option value="absente" ${c.gmb==='absente'?'selected':''}>Absente</option>
+              <option value="incomplete" ${c.gmb==='incomplete'?'selected':''}>Incomplète / non tenue à jour</option>
+              <option value="bonne" ${c.gmb==='bonne'?'selected':''}>Bonne mais peu d’avis</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label>Réseaux sociaux (Facebook/Instagram) ?</label>
+            <select id="f_social">
+              <option value="absent" ${c.social==='absent'?'selected':''}>Aucune présence</option>
+              <option value="inactif" ${c.social==='inactif'?'selected':''}>Page créée mais inactive</option>
+              <option value="actif" ${c.social==='actif'?'selected':''}>Page active mais peu suivie</option>
+            </select>
+          </div>
+          <div>
+            <label>Nombre d’avis Google (approx.)</label>
+            <input id="f_reviews" type="number" value="${c.reviews||0}" min="0">
+          </div>
+        </div>
+        <label>Remarque complémentaire (optionnel)</label>
+        <textarea id="f_notes" rows="2" placeholder="ex. clientèle jeune, veut plus de commandes à emporter...">${escapeHtml(c.notes||'')}</textarea>
+
+        ${state.error ? `<div class="error-box">${escapeHtml(state.error)}</div>` : ''}
+        ${state.loading ? `<div class="loading"><div class="spinner"></div> Génération du diagnostic en cours...</div>` :
+          `<button class="btn-primary" id="generateBtn">Générer le diagnostic</button>`}
+      </div>
+    `;
+  }
+
+  if(state.view === 'report'){
+    const c = getActiveClient();
+    if(!c || !c.report) return renderEmpty();
+    const r = c.report;
+    return `
+      <h1 class="page-title">${escapeHtml(c.name)}</h1>
+      <p class="page-sub">${escapeHtml(c.sector)} · ${escapeHtml(c.quartier)}</p>
+
+      <div class="card report-wrap">
+        <div class="seal"><div class="seal-inner">Diagnostic<br>vitrine</div></div>
+
+        <div class="report-section">
+          <h4>Résumé de la situation</h4>
+          <p>${escapeHtml(r.resume)}</p>
+        </div>
+
+        <div class="two-col">
+          <div class="report-section">
+            <h4>Points forts</h4>
+            <ul>${(r.points_forts||[]).map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
+          </div>
+          <div class="report-section">
+            <h4>Points faibles</h4>
+            <ul>${(r.points_faibles||[]).map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <h4>Recommandations</h4>
+          <ul>${(r.recommandations||[]).map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
+        </div>
+
+        <div class="report-section">
+          <h4>Description Google Business (prête à copier)</h4>
+          <p style="background:var(--surface-alt); padding:12px 14px; border-radius:6px; border:1px solid var(--border-lo);">${escapeHtml(r.description_google_business)}</p>
+        </div>
+
+        <div class="report-section">
+          <h4>Propositions de posts réseaux sociaux</h4>
+          ${(r.posts_reseaux||[]).map(p=>`
+            <div class="post-card">
+              <div class="plat">${escapeHtml(p.titre||'Post')}</div>
+              <div>${escapeHtml(p.texte)}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="report-section">
+          <h4>Plan d’action</h4>
+          ${(r.plan_action||[]).map(w=>`
+            <div class="week-row">
+              <span class="week-label">${escapeHtml(w.semaine)}</span>
+              <span>${(w.actions||[]).map(escapeHtml).join(' · ')}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="price-row">
+          <label style="margin:0;">Tarif du pack</label>
+          <input id="priceInput" type="number" value="${c.price||20000}" step="1000">
+          <span style="color:var(--text-faint); font-size:12px;">FCFA</span>
+        </div>
+
+        <button class="btn-primary" id="invoiceBtn">Générer la facture</button>
+        <button class="btn-secondary" id="editBtn">Modifier la fiche</button>
+      </div>
+    `;
+  }
+
+  if(state.view === 'invoice'){
+    const c = getActiveClient();
+    if(!c) return renderEmpty();
+    const today = new Date().toLocaleDateString('fr-FR');
+    return `
+      <div class="no-print" style="margin-bottom:16px;">
+        <button class="btn-primary" id="printBtn">Imprimer / enregistrer en PDF</button>
+        <button class="btn-secondary" id="backBtn">Retour au diagnostic</button>
+      </div>
+      <div class="invoice">
+        <div class="inv-head">
+          <div>
+            <div class="inv-title">Facture</div>
+            <div class="inv-num">N° ${c.invoiceNumber}</div>
+          </div>
+          <div class="inv-meta">Date : ${today}</div>
+        </div>
+        <div class="grid2" style="margin-bottom:10px;">
+          <div class="inv-from">
+            <p style="font-size:10px; text-transform:uppercase; color:#888; letter-spacing:.05em;">Émis par</p>
+            <p><strong>${escapeHtml(state.settings.proName || 'Votre nom / entreprise')}</strong></p>
+            <p>${escapeHtml(state.settings.proPhone || '')}</p>
+          </div>
+          <div class="inv-to">
+            <p style="font-size:10px; text-transform:uppercase; color:#888; letter-spacing:.05em;">Client</p>
+            <p><strong>${escapeHtml(c.name)}</strong></p>
+            <p>${escapeHtml(c.contact||'')}</p>
+            <p>${escapeHtml(c.quartier||'')}</p>
+          </div>
+        </div>
+        <table>
+          <tr><th>Prestation</th><th style="text-align:right;">Montant</th></tr>
+          <tr>
+            <td>Audit express de présence en ligne — diagnostic, recommandations, contenus prêts à l’emploi (posts, fiche Google Business) et plan d’action.</td>
+            <td style="text-align:right;">${fmtCFA(c.price)}</td>
+          </tr>
+          <tr class="total-row"><td>Total</td><td style="text-align:right;">${fmtCFA(c.price)}</td></tr>
+        </table>
+        <div class="inv-footer">
+          <p class="terms">Paiement à réception. Merci de votre confiance — ce diagnostic est le point de départ ; les recommandations restent applicables progressivement.</p>
+          <div class="stamp"><div class="stamp-inner">Prestation<br>réalisée</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  return renderEmpty();
+}
+
+function renderEmpty(){
+  return `<div class="empty-state"><div class="big">Sélectionnez ou créez un client</div>Utilisez le panneau de gauche pour commencer.</div>`;
+}
+
+function emptyClientDraft(){
+  return { name:'', sector:'', quartier:'', contact:'', website:'non', gmb:'absente', social:'absent', reviews:0, notes:'' };
+}
+
+function getActiveClient(){
+  return state.clients.find(c=>c.id===state.activeClientId);
+}
+
+function escapeHtml(s){
+  if(s===undefined || s===null) return '';
+  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function attachEvents(){
+  const proName = document.getElementById('proName');
+  const proPhone = document.getElementById('proPhone');
+  if(proName) proName.addEventListener('change', e=>{ state.settings.proName = e.target.value; });
+  if(proPhone) proPhone.addEventListener('change', e=>{ state.settings.proPhone = e.target.value; });
+
+  const saveGoalBtn = document.getElementById('saveGoalBtn');
+  if(saveGoalBtn) saveGoalBtn.addEventListener('click', ()=>{
+    const v = Number(document.getElementById('goalInput').value);
+    if(v>0){ state.goal = v; render(); }
+  });
+
+  const newClientBtn = document.getElementById('newClientBtn');
+  if(newClientBtn) newClientBtn.addEventListener('click', ()=>{
+    state.activeClientId = null;
+    state.view = 'form';
+    state.error = null;
+    render();
+  });
+
+  document.querySelectorAll('.client-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.getAttribute('data-id');
+      state.activeClientId = id;
+      const c = getActiveClient();
+      state.view = c.status === 'facture' ? 'invoice' : (c.report ? 'report' : 'form');
+      state.error = null;
+      render();
+    });
+  });
+
+  const generateBtn = document.getElementById('generateBtn');
+  if(generateBtn) generateBtn.addEventListener('click', handleGenerate);
+
+  const invoiceBtn = document.getElementById('invoiceBtn');
+  if(invoiceBtn) invoiceBtn.addEventListener('click', handleInvoice);
+
+  const editBtn = document.getElementById('editBtn');
+  if(editBtn) editBtn.addEventListener('click', ()=>{ state.view='form'; render(); });
+
+  const backBtn = document.getElementById('backBtn');
+  if(backBtn) backBtn.addEventListener('click', ()=>{ state.view='report'; render(); });
+
+  const printBtn = document.getElementById('printBtn');
+  if(printBtn) printBtn.addEventListener('click', ()=> window.print());
+
+  const priceInput = document.getElementById('priceInput');
+  if(priceInput) priceInput.addEventListener('change', e=>{
+    const c = getActiveClient();
+    if(c) c.price = Number(e.target.value);
+  });
+}
+
+async function handleGenerate(){
+  const draft = {
+    id: state.activeClientId || uid(),
+    name: document.getElementById('f_name').value.trim(),
+    sector: document.getElementById('f_sector').value.trim(),
+    quartier: document.getElementById('f_quartier').value.trim(),
+    contact: document.getElementById('f_contact').value.trim(),
+    website: document.getElementById('f_website').value,
+    gmb: document.getElementById('f_gmb').value,
+    social: document.getElementById('f_social').value,
+    reviews: Number(document.getElementById('f_reviews').value)||0,
+    notes: document.getElementById('f_notes').value.trim(),
+    status: 'brouillon',
+    price: 20000
+  };
+
+  if(!draft.name){
+    state.error = 'Indiquez au moins le nom de l’entreprise.';
+    render();
+    return;
+  }
+
+  state.loading = true;
+  state.error = null;
+  render();
+
+  const prompt = `Tu es consultant en visibilité digitale pour petites entreprises au Niger (Niamey). Voici la situation d'une entreprise cliente :
+- Nom : ${draft.name}
+- Secteur : ${draft.sector || 'non précisé'}
+- Quartier/ville : ${draft.quartier || 'non précisé'}
+- Site web : ${draft.website}
+- Fiche Google Business : ${draft.gmb}
+- Réseaux sociaux : ${draft.social}
+- Nombre d'avis Google environ : ${draft.reviews}
+- Remarque : ${draft.notes || 'aucune'}
+
+Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ni après, sans balises markdown, sans backticks, avec exactement cette structure :
+{
+  "resume": "2 à 3 phrases résumant l'état actuel de la visibilité en ligne de cette entreprise",
+  "points_forts": ["2 à 3 points forts concrets"],
+  "points_faibles": ["2 à 3 points faibles concrets"],
+  "recommandations": ["5 recommandations concrètes et actionnables, spécifiques à cette entreprise, pas génériques"],
+  "description_google_business": "une description prête à copier-coller pour la fiche Google Business de cette entreprise, moins de 700 caractères, chaleureuse et professionnelle, en français",
+  "posts_reseaux": [
+    {"titre": "Post 1 - nom de la plateforme suggérée", "texte": "texte complet du post, prêt à publier, en français, avec un ton adapté au secteur"},
+    {"titre": "Post 2 - nom de la plateforme suggérée", "texte": "texte complet du post"},
+    {"titre": "Post 3 - nom de la plateforme suggérée", "texte": "texte complet du post"}
+  ],
+  "plan_action": [
+    {"semaine": "Semaine 1", "actions": ["2 actions concrètes"]},
+    {"semaine": "Semaine 2", "actions": ["2 actions concrètes"]},
+    {"semaine": "Semaine 3", "actions": ["2 actions concrètes"]},
+    {"semaine": "Semaine 4", "actions": ["2 actions concrètes"]}
+  ]
+}`;
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1600,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    if(!response.ok){
+      throw new Error('Réponse invalide du service (' + response.status + ')');
+    }
+
+    const data = await response.json();
+    const textBlock = (data.content||[]).find(b=>b.type==='text');
+    if(!textBlock) throw new Error('Aucune réponse texte reçue.');
+
+    let clean = textBlock.text.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+    const report = JSON.parse(clean);
+
+    draft.report = report;
+
+    const existingIndex = state.clients.findIndex(c=>c.id===draft.id);
+    if(existingIndex>=0){
+      state.clients[existingIndex] = { ...state.clients[existingIndex], ...draft };
+    } else {
+      state.clients.push(draft);
+    }
+    state.activeClientId = draft.id;
+    state.loading = false;
+    state.view = 'report';
+    render();
+  }catch(err){
+    console.error('Erreur génération diagnostic:', err);
+    state.loading = false;
+    state.error = "La génération a échoué (" + err.message + "). Réessayez, ou vérifiez votre connexion.";
+    render();
+  }
+}
+
+function handleInvoice(){
+  const c = getActiveClient();
+  if(!c) return;
+  c.status = 'facture';
+  c.invoiceNumber = 'KDV-' + String(invoiceCounter).padStart(3,'0');
+  invoiceCounter++;
+  state.view = 'invoice';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
